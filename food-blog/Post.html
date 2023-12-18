@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/Post.css">
+    <title> Post</title>
+
+    <script src="https://cdn.tiny.cloud/1/2qhosjxlbqkxkube8z9zk9mrfy0zgvl6xia0yeo40qt5vt2c/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: 'textarea#default',
+            width: 1000,
+            height: 300,
+            plugins: [
+                'advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'prewiew', 'anchor', 'pagebreak', 'Image Tools', 'image code',
+                'searchreplace', 'wordcount', 'visualblocks', 'code', 'fullscreen', 'insertdatetime', 'media',
+                'table', 'emoticons', 'template', 'codesample'
+            ],
+            toolbar: 'undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify |' +
+                'bullist numlist outdent indent | link image | print preview media fullscreen | ' +
+                'forecolor backcolor emoticons',
+            menu: {
+                favs: { title: 'menu', items: 'code visualaid | searchreplace | emoticons' }
+            },
+            menubar: 'favs file edit view insert format tools table',
+            content_style: 'body{font-family:Helvetica,Arial,sans-serif; font-size:16px}',
+
+                     image_title: true,
+   
+            automatic_uploads: true,
+   
+            file_picker_types: 'image',
+       
+            file_picker_callback: function (cb, value, meta) {
+                var input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+
+
+                input.onchange = function () {
+                    var file = this.files[0];
+
+                    var reader = new FileReader();
+                    reader.onload = function () {
+
+                        var id = 'blobid' + (new Date()).getTime();
+                        var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                        var base64 = reader.result.split(',')[1];
+                        var blobInfo = blobCache.create(id, file, base64);
+                        blobCache.add(blobInfo);
+
+
+                        cb(blobInfo.blobUri(), { title: file.name });
+                    };
+                    reader.readAsDataURL(file);
+                };
+
+                input.click();
+            },
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+
+        });
+        function displayImage() {
+            // Lấy đối tượng input và ảnh
+            var input = document.getElementById('imageInput');
+            var image = document.getElementById('displayedImage');
+    
+            // Kiểm tra xem người dùng đã chọn file hay chưa
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+    
+                // Đọc dữ liệu từ file và gán vào thuộc tính src của thẻ img
+                reader.onload = function (e) {
+                    image.src = e.target.result;
+                    image.style.display = 'block'; // Hiển thị thẻ img
+                };
+    
+                // Đọc file ảnh như là dữ liệu URL
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="status">
+        <h1>Đăng bài mới</h1>
+
+
+    <form method="post" action="Home/Create">
+        <textarea name="textarea" id="default"></textarea>
+        <input type="submit"value="submit" class="btn-1">
+    </form>
+
+
+    <form method="post" enctype="multipart/form-data" asp-action="update">
+        <div class="form-group">
+            <label for="fileHinhAnh">Chọn tệp ảnh:</label>
+            <input type="file" accept="image/*" id="imageInput" onchange="displayImage()">
+            <img id="displayedImage" style="display:none; max-width: 100%;">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Tải lên</button>
+    </form>
+
+    </div>
+    
+
+  
+</body>
+</html>
